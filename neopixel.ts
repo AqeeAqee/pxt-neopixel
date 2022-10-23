@@ -83,7 +83,7 @@ namespace neopixel {
             startHue = startHue >> 0;
             endHue = endHue >> 0;
             const saturation = 100;
-            const luminance = 50;
+            const luminance = this.brightness;
             const steps = this._length;
             const direction = HueInterpolationDirection.Clockwise;
 
