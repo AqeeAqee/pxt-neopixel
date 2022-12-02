@@ -4,12 +4,14 @@
     strip.setPixelColor(1, 0x00ff00)
     strip.setPixelColor(2, 0x0000ff)
     strip.show()
-    pause(2000)
-    strip.showRainbow();
+    pause(1000)
+    strip.setBrightness(55)
+    strip.showRainbow(0,360);
     for (let i = 0; i <= strip.length(); i++) { 
         strip.rotate();
         strip.show();
         basic.pause(100)
+        strip.dimBrightness()
     }
     
     strip.showColor(NeoPixelColors.Red)

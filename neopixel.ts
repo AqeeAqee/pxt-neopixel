@@ -316,6 +316,31 @@ namespace neopixel {
         }
 
         /**
+         * Dim brightness to current colors, using half each time.
+         * @param percent how % to dim brightness. eg: 10
+         **/
+        //% blockId="neopixel_each_brightness" block="%strip|dim brightness %percent |%" blockGap=8
+        //% strip.defl=strip
+        //% weight=57
+        //% parts="neopixel" advanced=true
+        dimBrightness(percent:number=10): void {
+            const stride = this._mode === NeoPixelMode.RGBW ? 4 : 3;
+            const br = this.brightness;
+            const buf = this.buf;
+            const end = this.start + this._length;
+            const mid = Math.idiv(this._length, 2);
+            for (let i = this.start; i < end; ++i) {
+                const ledoffset = i * stride;
+                const r = (buf[ledoffset + 0] *(100-percent)) /100; buf[ledoffset + 0] = r;
+                const g = (buf[ledoffset + 1] *(100-percent)) /100; buf[ledoffset + 1] = g;
+                const b = (buf[ledoffset + 2] *(100-percent)) /100; buf[ledoffset + 2] = b;
+                if (stride == 4) {
+                    const w = (buf[ledoffset + 3] * (100 - percent)) / 100; buf[ledoffset + 3] = w;
+                }
+            }
+        }
+
+        /**
          * Create a range of LEDs.
          * @param start offset in the LED strip to start the range
          * @param length number of LEDs in the range. eg: 4
