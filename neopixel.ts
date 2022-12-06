@@ -252,6 +252,26 @@ namespace neopixel {
         }
 
         /**
+         * Shows a image to a given color 
+         * @param rgb RGB color of the LED
+         */
+        //% blockId="neopixel_show_image" block="%strip|show image %image(myImage) at x|%x y|%y color %rgb=neopixel_colors"
+        //% strip.defl=strip
+        //% weight=3 blockGap=8 advanced=true inline
+        //% parts="ledmatrix" async
+        showImage(myImage: Image, offsetX: number, offsetY: number, color: number) {
+
+            for (let y = 0; y < myImage.height(); y++) {
+                for (let x = 0; x < myImage.width(); x++) {
+                    if (myImage.pixel(x, y))
+                        this.setPixelColor(offsetX + x + (offsetY + y) * this._matrixWidth, color)
+                }
+            }
+            this.show();
+        }
+
+
+        /**
          * For NeoPixels with RGB+W LEDs, set the white LED brightness. This only works for RGB+W NeoPixels.
          * @param pixeloffset position of the LED in the strip
          * @param white brightness of the white LED
