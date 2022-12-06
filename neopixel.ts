@@ -39,13 +39,11 @@ enum NeoPixelMode {
 /**
  * Layouts of PCB
  */
-enum NeoPixelLayout{
-    //same order in each rows"
-    //% block="Normal
-    Normal = 1,
-    //pixels layout in different order in even/odd rows"
-    //% block="S order
-    S=2,
+enum NeoPixelSLayoutFlipRows{
+    //% block="Even"
+    even = 0,
+    //% block="Odd"
+    odd=1,
 }
 /**
  * Functions to operate NeoPixel strips.
@@ -64,7 +62,8 @@ namespace neopixel {
         _length: number; // number of LEDs
         _mode: NeoPixelMode;
         _matrixWidth: number; // number of leds in a matrix - if any
-        _layout: NeoPixelLayout;
+        _sLayout:boolean
+        _sLayoutFlipRows: NeoPixelSLayoutFlipRows;
 
         /**
          * Shows all LEDs to a given color (range 0-255 for r, g, b).
@@ -198,22 +197,23 @@ namespace neopixel {
         //% parts="neopixel" advanced=true
         setPixelColor(pixeloffset: number, rgb: number): void {
             const index = pixeloffset + this.start
-            if (this._matrixWidth > 1 && this._layout == NeoPixelLayout.S && (Math.idiv(index, this._matrixWidth) % 2 == 1))
+            if (this._matrixWidth > 1 && this._sLayout && (Math.idiv(index, this._matrixWidth) % 2 == this._sLayoutFlipRows))
                 pixeloffset=index + this._matrixWidth - 1 - 2 * (index % this._matrixWidth) - this.start
             this.setPixelRGB(pixeloffset >> 0, rgb >> 0);
         }
 
         /**
-         * Sets layout in matrix shaped strip
+         * Sets S layout in matrix shaped strip
          * @param layout layout modes, normal or in S order
          */
-        //% blockId=neopixel_set_layout block="%strip|set layout %layout"
+        //% blockId=neopixel_set_S_layout block="%strip|set S layout, flip rows %parity"
         //% strip.defl=strip
         //% blockGap=8
         //% weight=5
         //% parts="neopixel" advanced=true
-        setLayout(layout: NeoPixelLayout) {
-            this._layout=layout
+        setSLayout(parity: NeoPixelSLayoutFlipRows) {
+            this._sLayout = true
+            this._sLayoutFlipRows = parity
         }
 
         /**
@@ -263,7 +263,7 @@ namespace neopixel {
 
             for (let y = 0; y < myImage.height(); y++) {
                 for (let x = 0; x < myImage.width(); x++) {
-                    if (myImage.pixel(x, y))
+                    if (offsetX + x < this._matrixWidth && myImage.pixel(x, y))
                         this.setPixelColor(offsetX + x + (offsetY + y) * this._matrixWidth, color)
                 }
             }
@@ -284,7 +284,7 @@ namespace neopixel {
         setPixelWhiteLED(pixeloffset: number, white: number): void {
             if (this._mode === NeoPixelMode.RGBW) {
                 const index = pixeloffset + this.start
-                if (this._matrixWidth>1 && this._layout == NeoPixelLayout.S && (Math.idiv(index, this._matrixWidth) % 2 == 1))
+                if (this._matrixWidth > 1 && this._sLayout && (Math.idiv(index, this._matrixWidth) % 2 == this._sLayoutFlipRows))
                     pixeloffset=index + this._matrixWidth - 1 - 2 * (index % this._matrixWidth)-this.start
                 this.setPixelW(pixeloffset >> 0, white >> 0);
             }
