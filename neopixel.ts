@@ -198,7 +198,7 @@ namespace neopixel {
         //% parts="neopixel" advanced=true
         setPixelColor(pixeloffset: number, rgb: number): void {
             const index = pixeloffset + this.start
-            if (this._layout == NeoPixelLayout.S && (Math.idiv(index, this._matrixWidth) % 2 == 1)) 
+            if (this._matrixWidth > 1 && this._layout == NeoPixelLayout.S && (Math.idiv(index, this._matrixWidth) % 2 == 1))
                 pixeloffset=index + this._matrixWidth - 1 - 2 * (index % this._matrixWidth) - this.start
             this.setPixelRGB(pixeloffset >> 0, rgb >> 0);
         }
@@ -264,7 +264,7 @@ namespace neopixel {
         setPixelWhiteLED(pixeloffset: number, white: number): void {
             if (this._mode === NeoPixelMode.RGBW) {
                 const index = pixeloffset + this.start
-                if (this._layout == NeoPixelLayout.S && (Math.idiv(index, this._matrixWidth) % 2 == 1))
+                if (this._matrixWidth>1 && this._layout == NeoPixelLayout.S && (Math.idiv(index, this._matrixWidth) % 2 == 1))
                     pixeloffset=index + this._matrixWidth - 1 - 2 * (index % this._matrixWidth)-this.start
                 this.setPixelW(pixeloffset >> 0, white >> 0);
             }
