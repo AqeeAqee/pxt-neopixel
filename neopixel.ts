@@ -64,6 +64,7 @@ namespace neopixel {
         _matrixWidth: number; // number of leds in a matrix - if any
         _sLayout:boolean
         _sLayoutFlipRows: NeoPixelSLayoutFlipRows;
+        _matrixTransponed:boolean
 
         /**
          * Shows all LEDs to a given color (range 0-255 for r, g, b).
@@ -198,7 +199,7 @@ namespace neopixel {
         setPixelColor(pixeloffset: number, rgb: number): void {
             const index = pixeloffset + this.start
             if (this._matrixWidth > 1 && this._sLayout && (Math.idiv(index, this._matrixWidth) % 2 == this._sLayoutFlipRows))
-                pixeloffset=index + this._matrixWidth - 1 - 2 * (index % this._matrixWidth) - this.start
+                pixeloffset = index + this._matrixWidth - 1 - 2 * (index % this._matrixWidth) - this.start
             this.setPixelRGB(pixeloffset >> 0, rgb >> 0);
         }
 
@@ -223,10 +224,23 @@ namespace neopixel {
         //% blockId=neopixel_set_matrix_width block="%strip|set matrix width %width"
         //% strip.defl=strip
         //% blockGap=8
-        //% weight=5
+        //% weight=11
         //% parts="neopixel" advanced=true
         setMatrixWidth(width: number) {
             this._matrixWidth = Math.min(this._length, width >> 0);
+        }
+
+        /**
+         * Sets matrix poseponed, x <--> y
+         * @param width number of pixels in a row
+         */
+        //% blockId=neopixel_set_matrix_transponed_width block="%strip|set transponed matrix %transponed(true)"
+        //% strip.defl=strip
+        //% blockGap=8
+        //% weight=10
+        //% parts="neopixel" advanced=true
+        setMatrixTransponed(transponed: boolean) {
+            this._matrixTransponed = transponed
         }
 
         /**
@@ -238,7 +252,7 @@ namespace neopixel {
          */
         //% blockId="neopixel_set_matrix_color" block="%strip|set matrix color at x %x|y %y|to %rgb=neopixel_colors"
         //% strip.defl=strip
-        //% weight=4
+        //% weight=3
         //% parts="neopixel" advanced=true
         setMatrixColor(x: number, y: number, rgb: number) {
             if (this._matrixWidth <= 0) return; // not a matrix, ignore
@@ -246,6 +260,9 @@ namespace neopixel {
             y = y >> 0;
             rgb = rgb >> 0;
             const cols = Math.idiv(this._length, this._matrixWidth);
+            if (this._matrixTransponed){
+                let v=x;x=y;y=v
+            }
             if (x < 0 || x >= this._matrixWidth || y < 0 || y >= cols) return;
             let i = x + y * this._matrixWidth;
             this.setPixelColor(i, rgb);
@@ -257,14 +274,13 @@ namespace neopixel {
          */
         //% blockId="neopixel_show_image" block="%strip|show image %image(myImage) at x|%x y|%y color %rgb=neopixel_colors"
         //% strip.defl=strip
-        //% weight=3 blockGap=8 advanced=true inline
+        //% weight=2 blockGap=8 advanced=true inline
         //% parts="ledmatrix" async
         showImage(myImage: Image, offsetX: number, offsetY: number, color: number) {
-
             for (let y = 0; y < myImage.height(); y++) {
                 for (let x = 0; x < myImage.width(); x++) {
-                    if (offsetX + x < this._matrixWidth && myImage.pixel(x, y))
-                        this.setPixelColor(offsetX + x + (offsetY + y) * this._matrixWidth, color)
+                    if (myImage.pixel(x, y))
+                        this.setMatrixColor(offsetX + x, offsetY + y, color)
                 }
             }
             this.show();
