@@ -210,7 +210,7 @@ namespace neopixel {
         //% blockId=neopixel_set_S_layout block="%strip|set S layout, flip rows %parity"
         //% strip.defl=strip
         //% blockGap=8
-        //% weight=5
+        //% weight=25
         //% parts="neopixel" advanced=true
         setSLayout(parity: NeoPixelSLayoutFlipRows) {
             this._sLayout = true
@@ -224,7 +224,7 @@ namespace neopixel {
         //% blockId=neopixel_set_matrix_width block="%strip|set matrix width %width"
         //% strip.defl=strip
         //% blockGap=8
-        //% weight=11
+        //% weight=31
         //% parts="neopixel" advanced=true
         setMatrixWidth(width: number) {
             this._matrixWidth = Math.min(this._length, width >> 0);
@@ -237,7 +237,7 @@ namespace neopixel {
         //% blockId=neopixel_set_matrix_transponed_width block="%strip|set transponed matrix %transponed(true)"
         //% strip.defl=strip
         //% blockGap=8
-        //% weight=10
+        //% weight=24
         //% parts="neopixel" advanced=true
         setMatrixTransponed(transponed: boolean) {
             this._matrixTransponed = transponed
@@ -252,7 +252,7 @@ namespace neopixel {
          */
         //% blockId="neopixel_set_matrix_color" block="%strip|set matrix color at x %x|y %y|to %rgb=neopixel_colors"
         //% strip.defl=strip
-        //% weight=3
+        //% weight=29
         //% parts="neopixel" advanced=true
         setMatrixColor(x: number, y: number, rgb: number) {
             if (this._matrixWidth <= 0) return; // not a matrix, ignore
@@ -272,9 +272,9 @@ namespace neopixel {
          * Shows a image to a given color 
          * @param rgb RGB color of the LED
          */
-        //% blockId="neopixel_show_image" block="%strip|show image %image(myImage) at x|%x y|%y color %rgb=neopixel_colors"
+        //% blockId="neopixel_show_image" block="%strip|show image %image(myImage) at x %x|y %y|with %rgb=neopixel_colors"
         //% strip.defl=strip
-        //% weight=2 blockGap=8 advanced=true inline
+        //% weight=22 blockGap=8 advanced=true inlineInputMode=inline
         //% parts="ledmatrix" async
         showImage(myImage: Image, offsetX: number, offsetY: number, color: number) {
             for (let y = 0; y < myImage.height(); y++) {
@@ -286,6 +286,23 @@ namespace neopixel {
             // this.show();
         }
 
+        /**
+         * get a image of a char from defualt font.
+         * return the font of first letter if there's multi letter in parameter 'char'
+         * or return empty image if char is empty
+         * @param char string with one letter which font will be in returned image
+         * @param rgb RGB color of the LED
+         */
+        //% blockId="neopixel_print_string" block="%strip|print %string at x %x|y %y|with %rgb=neopixel_colors"
+        //% weight=21 blockGap=8 advanced=true inlineInputMode=inline
+        //% parts="neopixel"
+        printString(str: string, x:number, y:number, rgb:number) {
+            for (let i = 0; i < str.length; i++) {
+                plotCharFont(str[i], (fx, fy) => {
+                    this.setMatrixColor(x + fx+i*neopixel.MICROBIT_FONT_WIDTH, y+fy, rgb)
+                })
+            }
+        }
 
         /**
          * For NeoPixels with RGB+W LEDs, set the white LED brightness. This only works for RGB+W NeoPixels.
