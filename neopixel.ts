@@ -283,7 +283,7 @@ namespace neopixel {
                         this.setMatrixColor(offsetX + x, offsetY + y, color)
                 }
             }
-            this.show();
+            // this.show();
         }
 
 
