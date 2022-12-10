@@ -37,6 +37,18 @@ enum NeoPixelMode {
 }
 
 /**
+ * Auto Color Modes
+ */
+enum AutoColorModes{
+    //% block="Auto Color Rainbow X"
+    rainbowX = -1,
+    //% block="Auto Color Rainbow Y"
+    rainbowY = -2,
+    //% block="Auto Color Rainbow XY"
+    rainbowXY = -3,
+}
+
+/**
  * Layouts of PCB
  */
 enum NeoPixelSLayoutFlipRows{
@@ -45,6 +57,7 @@ enum NeoPixelSLayoutFlipRows{
     //% block="Odd"
     odd=1,
 }
+
 /**
  * Functions to operate NeoPixel strips.
  */
@@ -259,13 +272,34 @@ namespace neopixel {
             x = x >> 0;
             y = y >> 0;
             rgb = rgb >> 0;
-            const cols = Math.idiv(this._length, this._matrixWidth);
-            if (this._matrixTransponed){
-                let v=x;x=y;y=v
+
+            if(rgb<0){
+                rgb=this.getAutoFillColor(x,y,rgb)
             }
+
+            if (this._matrixTransponed){let v=x;x=y;y=v}
+
+            const cols = Math.idiv(this._length, this._matrixWidth);
             if (x < 0 || x >= this._matrixWidth || y < 0 || y >= cols) return;
             let i = x + y * this._matrixWidth;
             this.setPixelColor(i, rgb);
+        }
+
+        getAutoFillColor(x:number,y:number, mode:AutoColorModes){
+            let rgb
+            switch(mode){
+                case AutoColorModes.rainbowX:
+                    rgb = hsl((x+1) * 360 / (this._matrixTransponed ? this.length() / this._matrixWidth : this._matrixWidth), 99, this.brightness)
+                    break;
+                case AutoColorModes.rainbowY:
+                    rgb = hsl((y+1) * 360 / (this._matrixTransponed ? this._matrixWidth : this.length() / this._matrixWidth), 99, this.brightness)
+                    break;
+                case AutoColorModes.rainbowXY:
+                    rgb = hsl((x+y+1) * 360 / (this._matrixWidth + this.length() / this._matrixWidth), 99, this.brightness)
+                    break;
+            }
+
+            return rgb
         }
 
         /**
@@ -635,6 +669,16 @@ namespace neopixel {
     //% advanced=true
     export function colors(color: NeoPixelColors): number {
         return color;
+    }
+
+    /**
+     * Gets the auto color modes
+    */
+    //% weight=20 blockGap=8
+    //% blockId="neopixel_auto_color_modes" block="%mode"
+    //% advanced=true
+    export function getAutoColorModes(mode: AutoColorModes): number {
+        return mode;
     }
 
     function packRGB(a: number, b: number, c: number): number {
