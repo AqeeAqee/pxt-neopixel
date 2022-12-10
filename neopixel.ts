@@ -46,6 +46,8 @@ enum AutoColorModes{
     rainbowY = -2,
     //% block="Auto Color Rainbow XY"
     rainbowXY = -3,
+    //% block="Auto Color Rainbow Center"
+    rainbowCenter = -4,
 }
 
 /**
@@ -274,7 +276,7 @@ namespace neopixel {
             rgb = rgb >> 0;
 
             if(rgb<0){
-                rgb=this.getAutoFillColor(x,y,rgb)
+                rgb=this.getAutoColor(x,y,rgb)
             }
 
             if (this._matrixTransponed){let v=x;x=y;y=v}
@@ -285,21 +287,44 @@ namespace neopixel {
             this.setPixelColor(i, rgb);
         }
 
-        getAutoFillColor(x:number,y:number, mode:AutoColorModes){
-            let rgb
+        getAutoColor(x:number,y:number, mode:AutoColorModes){
+            let hue
+            const width = this._matrixTransponed ? this.length() / this._matrixWidth : this._matrixWidth
+            const height = this._matrixTransponed ? this._matrixWidth : this.length() / this._matrixWidth
             switch(mode){
                 case AutoColorModes.rainbowX:
-                    rgb = hsl((x+1) * 360 / (this._matrixTransponed ? this.length() / this._matrixWidth : this._matrixWidth), 99, this.brightness)
+                    hue = (x+1) * 360 / (width)
                     break;
                 case AutoColorModes.rainbowY:
-                    rgb = hsl((y+1) * 360 / (this._matrixTransponed ? this._matrixWidth : this.length() / this._matrixWidth), 99, this.brightness)
+                    hue = (y+1) * 360 / (height)
                     break;
                 case AutoColorModes.rainbowXY:
-                    rgb = hsl((x+y+1) * 360 / (this._matrixWidth + this.length() / this._matrixWidth), 99, this.brightness)
+                    hue = (x + y + 1) * 360 / (width+height)
+                    break;
+                case AutoColorModes.rainbowCenter:
+                    hue = (Math.abs(x - width/2) + Math.abs(y - height/2)) * 360 / (width+height)
                     break;
             }
+            if(this.autoColorLoopTime)
+                hue+= 360-(control.millis()%this.autoColorLoopTime) *360/this.autoColorLoopTime
+            return hsl(hue, 99, this.brightness)
+        }
 
-            return rgb
+        autoColorLoopTime:number
+
+        /**
+         * Set LED to a given color (range 0-255 for r, g, b) in a matrix shaped strip
+         * You need to call ``show`` to make the changes visible.
+         * @param x horizontal position
+         * @param y horizontal position
+         * @param rgb RGB color of the LED
+         */
+        //% blockId="neopixel_set_auto_color_loop_time" block="%strip|set atuo color %loopTime"
+        //% strip.defl=strip
+        //% weight=19
+        //% parts="neopixel" advanced=true
+        setAutoColorLoopTime(loopTime:number=5000){
+            this.autoColorLoopTime=loopTime
         }
 
         /**
